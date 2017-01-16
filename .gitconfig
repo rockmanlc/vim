@@ -1,0 +1,14 @@
+[color]
+	ui = auto
+[user]
+	name = Rock Li
+	email = Chao.Li5@Honeywell.com
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	br = branch
+    brv = branch -avv
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
