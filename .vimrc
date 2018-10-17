@@ -173,7 +173,7 @@ if MySys() == "windows"                " 设定windows系统中ctags程序的位
 elseif MySys() == "linux"              " 设定windows系统中ctags程序的位置
     let Tlist_Ctags_Cmd = '/usr/bin/ctags'
 endif
-nnoremap <silent><F4> :TlistToggle<CR>
+nnoremap tl :TlistToggle<CR>
 let Tlist_Show_One_File = 1            " 不同时显示多个文件的tag，只显示当前文件的
 let Tlist_Exit_OnlyWindow = 1          " 如果taglist窗口是最后一个窗口，则退出vim
 let Tlist_Use_Right_Window = 1         " 在右侧窗口中显示taglist窗口
@@ -186,6 +186,24 @@ let Tlist_Process_File_Always = 1      "实时更新tags
 let Tlist_Display_Prototype = 0
 let Tlist_Compact_Format = 1
 
+"-----------------------------------------------------------------
+" plugin - tagbar
+"-----------------------------------------------------------------
+nmap <F9> :TagbarToggle<CR>
+" 启动时自动focus
+let g:tagbar_autofocus = 1
+
+" for ruby, delete if you do not need
+let g:tagbar_type_ruby = {
+    \ 'kinds' : [
+        \ 'm:modules',
+        \ 'c:classes',
+        \ 'd:describes',
+        \ 'C:contexts',
+        \ 'f:methods',
+        \ 'F:singleton methods'
+    \ ]
+ \ }
 
 "-----------------------------------------------------------------
 " plugin - mark.vim 给各种tags标记不同的颜色，便于观看调式的插件。
@@ -339,14 +357,32 @@ if filereadable(expand("~/.vimrc.bundles"))
 endif
 
 "-----------------------------------------------------------------
+" plugin - ctrlp
+"-----------------------------------------------------------------
+let g:ctrlp_map = '<leader>p'
+let g:ctrlp_cmd = 'CtrlP'
+map <leader>f :CtrlPMRU<CR>
+"map <Ctrl>p :CtrlPMRU<CR>
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
+    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
+    \ }
+let g:ctrlp_working_path_mode=0
+let g:ctrlp_match_window_bottom=1
+let g:ctrlp_max_height=15
+let g:ctrlp_match_window_reversed=0
+let g:ctrlp_mruf_max=500
+let g:ctrlp_follow_symlinks=1
+
+"-----------------------------------------------------------------
 " ctags settings
 "-----------------------------------------------------------------
 map <F5> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR> :TlistUpdate<CR>
 imap <F5> <ESC>:!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR> :TlistUpdate<CR>
 set tags=tags
 set tags+=./tags "add current directory's generated tags file
-set tags+=/home/rocklee/Android/SourceCode/frameworks/base/tags "add new tags file
-set tags+=/home/rocklee/Android/SourceCode/frameworks/native/tags
+set tags+=~/work/kunlun/frameworks/base/tags "add new tags file
+set tags+=~/work/kunlun/frameworks/native/tags
 
 "-----------------------------------------------------------------
 " omnicppcomplete setting
