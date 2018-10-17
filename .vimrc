@@ -182,7 +182,7 @@ let Tlist_Auto_Open = 0
 let Tlist_Auto_Update = 1
 let Tlist_Hightlight_Tag_On_BufEnter = 1
 let Tlist_Enable_Fold_Column = 0
-let Tlist_Process_File_Always = 1
+let Tlist_Process_File_Always = 1      "实时更新tags
 let Tlist_Display_Prototype = 0
 let Tlist_Compact_Format = 1
 
@@ -208,9 +208,17 @@ let Tlist_Compact_Format = 1
 " r 递归刷新当前目录             R 递归刷新当前根目录
 "-----------------------------------------------------------------
 " F3 NERDTree 切换
-map <F3> :NERDTreeToggle<CR>
-imap <F3> <ESC>:NERDTreeToggle<CR>
-
+" map nt :NERDTreeToggle<CR>
+" imap nt <ESC>:NERDTreeToggle<CR>
+let NERDChristmasTree=0
+let NERDTreeWinSize=40
+let NERDTreeChDirMode=2
+let NERDTreeIgnore=['\~$', '\.pyc$', '\.swp$']
+let NERDTreeShowBookmarks=1
+let NERDTreeWinPos="left"
+autocmd vimenter * if !argc() | NERDTree | endif " Automatically open a NERDTree if no files where specified
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif " Close vim if the only window left open is a NERDTree
+nmap nt :NERDTreeToggle<cr>
 
 "-----------------------------------------------------------------
 " plugin - NERD_commenter.vim   注释代码用的，
@@ -295,25 +303,25 @@ endif
 "-----------------------------------------------------------------
 " plugin - vundle
 "-----------------------------------------------------------------
-set rtp+=~/.vim/bundle/Vundle.vim/Vundle.vim-master/
-call vundle#rc()
+" set rtp+=~/.vim/bundle/Vundle.vim/Vundle.vim-master/
+"call vundle#rc()
 
 " let Vundle manage Vundle
 " " required!
-Bundle 'gmarik/vundle'
+"Bundle 'gmarik/vundle'
   
 " My Bundles here:
 "
 " original repos on github
-Bundle 'tpope/vim-fugitive'
-Bundle 'Lokaltog/vim-easymotion'
-Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
-Bundle 'tpope/vim-rails.git'
+"Bundle 'tpope/vim-fugitive'
+"Bundle 'Lokaltog/vim-easymotion'
+"Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
+"Bundle 'tpope/vim-rails.git'
 " vim-scripts repos
-Bundle 'L9'
-Bundle 'FuzzyFinder'
+"Bundle 'L9'
+"Bundle 'FuzzyFinder'
 " non github repos
-Bundle 'git://git.wincent.com/command-t.git'
+"Bundle 'git://git.wincent.com/command-t.git'
 " ...
  
 filetype plugin indent on     " required!
@@ -326,3 +334,71 @@ filetype plugin indent on     " required!
 " 
 " see :h vundle for more details or wiki for FAQ
 " NOTE: comments after Bundle command are not allowed..
+if filereadable(expand("~/.vimrc.bundles"))
+      source ~/.vimrc.bundles
+endif
+
+"-----------------------------------------------------------------
+" ctags settings
+"-----------------------------------------------------------------
+map <F5> :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR> :TlistUpdate<CR>
+imap <F5> <ESC>:!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR><CR> :TlistUpdate<CR>
+set tags=tags
+set tags+=./tags "add current directory's generated tags file
+set tags+=/home/rocklee/Android/SourceCode/frameworks/base/tags "add new tags file
+set tags+=/home/rocklee/Android/SourceCode/frameworks/native/tags
+
+"-----------------------------------------------------------------
+" omnicppcomplete setting
+"-----------------------------------------------------------------
+" 按下F3自动补全代码，注意该映射语句后不能有其他字符，包括tab；否则按下F3会自动补全一些乱码
+imap <F3> <C-X><C-O>
+" 按下F2根据头文件内关键字补全
+imap <F2> <C-X><C-I>
+set completeopt=menu,menuone " 关掉智能补全时的预览窗口
+let OmniCpp_MayCompleteDot = 1 " autocomplete with .
+let OmniCpp_MayCompleteArrow = 1 " autocomplete with ->
+let OmniCpp_MayCompleteScope = 1 " autocomplete with ::
+let OmniCpp_SelectFirstItem = 2 " select first item (but don't insert)
+let OmniCpp_NamespaceSearch = 2 " search namespaces in this and included files
+let OmniCpp_ShowPrototypeInAbbr = 1 " show function prototype in popup window
+let OmniCpp_GlobalScopeSearch=1 " enable the global scope search
+let OmniCpp_DisplayMode=1 " Class scope completion mode: always show all members
+let OmniCpp_DefaultNamespaces=["std"]
+let OmniCpp_ShowScopeInAbbr=1 " show scope in abbreviation and remove the last column
+let OmniCpp_ShowAccess=1
+
+"-----------------------------------------------------------------
+" WinManager setting
+"-----------------------------------------------------------------
+let g:winManagerWindowLayout='FileExplorer|TagList' " 设置我们要管理的插件
+let g:persistentBehaviour=0 " 如果所有编辑文件都关闭了，退出vim
+nmap wm :WMToggle<cr>
+
+"-----------------------------------------------------------------
+" Cscope setting
+"-----------------------------------------------------------------
+if has("cscope")
+    set csprg=/usr/bin/cscope " 指定用来执行cscope的命令
+    set csto=0 " 设置cstag命令查找次序：0先找cscope数据库再找标签文件；1先找标签文件再找cscope数据库
+    set cst " 同时搜索cscope数据库和标签文件
+    set cscopequickfix=s-,c-,d-,i-,t-,e- " 使用QuickFix窗口来显示cscope查找结果
+    set nocsverb
+    if filereadable("cscope.out") " 若当前目录下存在cscope数据库，添加该数据库到vim
+        cs add cscope.out
+    elseif $CSCOPE_DB != "" " 否则只要环境变量CSCOPE_DB不为空，则添加其指定的数据库到vim
+        cs add $CSCOPE_DB
+    endif
+    set csverb
+endif
+map <F6> :cs add ./cscope.out .<CR><CR><CR> :cs reset<CR>
+imap <F6> <ESC>:cs add ./cscope.out .<CR><CR><CR> :cs reset<CR>
+" 将:cs find c等Cscope查找命令映射为<C-_>c等快捷键（按法是先按Ctrl+Shift+-, 然后很快再按下c）
+nmap <C-_>s :cs find s <C-R>=expand("<cword>")<CR><CR> :copen<CR><CR>
+nmap <C-_>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+nmap <C-_>d :cs find d <C-R>=expand("<cword>")<CR><CR> :copen<CR><CR>
+nmap <C-_>c :cs find c <C-R>=expand("<cword>")<CR><CR> :copen<CR><CR>
+nmap <C-_>t :cs find t <C-R>=expand("<cword>")<CR><CR> :copen<CR><CR>
+nmap <C-_>e :cs find e <C-R>=expand("<cword>")<CR><CR> :copen<CR><CR>
+nmap <C-_>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+nmap <C-_>i :cs find i <C-R>=expand("<cfile>")<CR><CR> :copen<CR><CR>
